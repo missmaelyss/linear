@@ -2,6 +2,8 @@ import sys
 
 def readFile():
 	args = []
+	min = None
+	max = None
 	for arg in sys.argv[1:]:
 		args.append(arg)
 	try:
@@ -33,28 +35,38 @@ def readFile():
 				pass
 			else:
 				values.append((int(line[0]), int(line[1])))
+				if (min is None or int(line[0]) < min):
+					min = int(line[0])
+				if (max is None or int(line[0]) > max):
+					max = int(line[0])
 			lenLine = len(line)
-		return values
+		return (values, min, max)
 
 def estimatePrice(mileage, theta):
 	return (theta[0]) + (theta[1] * mileage)
 
-def training(values, learningRate, theta):
+def training(values, learningRate, theta, max, min):
 	theta0 = theta[0]
 	theta1 = theta[1]
-	i = 0
-	while i < 1:
+	div = float(max - min)
+	if (div == 0):
+		div = float(1)
+	i = 1
+	while i < learningRate:
 		doze = 0
 		doze2 = 0
 		for value in values:
-			doze += estimatePrice(value[0], (theta0, theta1)) - value[1]
-			doze2 += (estimatePrice(value[0], (theta0, theta1)) - value[1]) * value[0]
-		theta0 = (1.0 / learningRate) * (1.0/(len(values))) * doze
-		theta1 = (1.0 / learningRate) * (1.0/(len(values))) * doze2
+			doze += estimatePrice(((value[0] - min) / div), (theta0, theta1)) - value[1]
+			doze2 += (estimatePrice(((value[0] - min) / div), (theta0, theta1)) - value[1]) * ((value[0] - min) / div)
+		theta0 -= (1.0 / i) * (1.0/(len(values))) * doze
+		theta1 -= (1.0 / i) * (1.0/(len(values))) * doze2
 		i += 1
+	print((theta0 + (theta1 * ((42000 - min) / div))))
 	return (theta0,theta1)
 
 def main():
-	values = readFile()
-	print(training(values, 0.001, (0,0)))
+	min = 0
+	max = 0
+	values, min, max = readFile()
+	print(training(values, 10000, (0,0), max, min))
 main()
