@@ -36,25 +36,34 @@ def readFile():
 			lenLine = len(line)
 		return values
 
+def scale(values):
+	maxKm = max(values[0])
+
 def estimatePrice(mileage, theta):
 	return (theta[0]) + (theta[1] * mileage)
 
+def IsThetaSame(theta, oldTheta):
+	if abs((theta[0] + theta[1]) - (oldTheta[0] + oldTheta[1])) < 0.001:
+		return 1
+	return 0
+
 def training(values, learningRate, theta):
-	theta0 = theta[0]
-	theta1 = theta[1]
 	i = 0
-	while i < 1:
-		doze = 0
-		doze2 = 0
+	oldTheta = (-1, -1)
+	while i < 200 and IsThetaSame(theta, oldTheta) == 0:
+		doze = 0.0
+		doze2 = 0.0
 		for value in values:
-			doze += estimatePrice(value[0], (theta0, theta1)) - value[1]
-			doze2 += (estimatePrice(value[0], (theta0, theta1)) - value[1]) * value[0]
-		theta0 = (1.0 / learningRate) * (1.0/(len(values))) * doze
-		theta1 = (1.0 / learningRate) * (1.0/(len(values))) * doze2
+			doze += estimatePrice(float(value[0]), theta) - float(value[1])
+			doze2 += (estimatePrice(float(value[0]), theta) - float(value[1])) * float(value[0])
+		oldTheta = theta
+		theta = (theta[0] - (learningRate) * (1.0/(len(values))) * doze, theta[1] - (learningRate) * (1.0/(len(values))) * doze2)
 		i += 1
-	return (theta0,theta1)
+	return (theta)
 
 def main():
 	values = readFile()
-	print(training(values, 0.001, (0,0)))
+
+	print(values)
+	# print(training(values, 0.1, (0,1)))
 main()
