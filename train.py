@@ -1,4 +1,5 @@
 import sys
+import matplotlib.pyplot as plt
 
 def readFile():
 	args = []
@@ -67,6 +68,13 @@ def training(values, learningRate, theta, max, min):
 def main():
 	min = 0
 	max = 0
+	i = 0
 	values, min, max = readFile()
 	print(training(values, 10000, (0,0), max, min))
+	affine = []
+	while (i < len(values)):
+		affine.append(estimatePrice(estimatePrice(((value[0] - min) / div), (theta0, theta1))))
+		i += 1
+	plt.scatter(values[0], values[1], color='blue')
+	plt.plot(values[0], affine, color='red', linewidth=2)
 main()
