@@ -44,15 +44,16 @@ def readFile():
 				km.append(float(line[0]))
 				price.append(float(line[1]))
 			lenLine = len(line)
-		return km, price, maxKm, maxPrice
+		maxi = max(maxPrice, maxKm)
+		return km, price, maxi
 
-def scale(km, price, maxKm, maxPrice):
+def scale(km, price, maxi):
 	i = 0
 	newKm = copy.copy(km)
 	newPrice = copy.copy(price)
 	while i < len(km):
-		newKm[i] = km[i] / maxKm
-		newPrice[i] = price[i] / maxPrice
+		newKm[i] = km[i] / maxi
+		newPrice[i] = price[i] / maxi
 		i += 1
 	return newKm, newPrice
 
@@ -60,14 +61,13 @@ def estimatePrice(mileage, theta):
 	return (theta[0]) + (theta[1] * mileage)
 
 def IsThetaSame(theta, oldTheta):
-	if abs((theta[0] + theta[1]) - (oldTheta[0] + oldTheta[1])) < 0.0001:
+	if abs((theta[0] + theta[1]) - (oldTheta[0] + oldTheta[1])) < 0.0000001:
 		return 1
 	return 0
 
 def training(km, price, learningRate, theta):
-	i = 0
 	oldTheta = (-1, -1)
-	while i < 200 and IsThetaSame(theta, oldTheta) == 0:
+	while IsThetaSame(theta, oldTheta) == 0:
 		doze = 0.0
 		doze2 = 0.0
 		n = 0
@@ -77,14 +77,24 @@ def training(km, price, learningRate, theta):
 			n += 1
 		oldTheta = theta
 		theta = (theta[0] - (learningRate) * (1.0/(len(km))) * doze, theta[1] - (learningRate) * (1.0/(len(km))) * doze2)
-		i += 1
 	return (theta)
 
+def precision(km, price, theta):
+	i = 0
+	diff = 0
+	while i < len(km):
+		diff += abs(estimatePrice(km[i], theta) - price[i])
+		i += 1
+	diff /= (len(km) * 100.0)
+	return diff
+
 def main():
-	km, price, maxKm, maxPrice = readFile()
-	newKm, newPrice = scale(km, price, maxKm, maxPrice)
+	km, price, maxi = readFile()
+	newKm, newPrice = scale(km, price, maxi)
 	theta = training(newKm, newPrice, 0.1, (0,1))
+	theta = (theta[0] * maxi, theta[1])
+	print('t0:',theta[0], '\nt1:', theta[1])
 	file = open('coef.py', 'w')
 	file.write('{ "t0":' + str(theta[0]) + ', "t1":' + str(theta[1]) + '}')
-
+	print("precision:", 100 - precision(km, price, theta), "%")
 main()

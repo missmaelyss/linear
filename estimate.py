@@ -1,11 +1,20 @@
+import json
+
 def estimatePrice(mileage, theta0, theta1):
 	return (theta0) + (theta1 * mileage)
 
 def main():
-	global theta0
-	global theta1
-	theta0 = 0
-	theta1 = 0
+	try:
+		file = open('coef.py', "r")
+	except:
+		theta0 = 0
+		theta1 = 0
+	else:
+		js = file.read()
+		coef = json.loads(js)
+		theta0 = coef["t0"]
+		theta1 = coef["t1"]
+
 	mileage = input('Enter a mileage:\t')
 	try:
 		mileage = int(mileage)
@@ -13,5 +22,6 @@ def main():
 		print('Error:\tNot a number')
 		main()
 	else:
-		print('EstimatePrice:\t', estimatePrice(mileage, theta0, theta1))
+		print('Estimated Price:\t',estimatePrice(mileage, theta0, theta1))
+
 main()
