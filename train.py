@@ -61,7 +61,7 @@ def estimatePrice(mileage, theta):
 	return (theta[0]) + (theta[1] * mileage)
 
 def IsThetaSame(theta, oldTheta):
-	if abs((theta[0] + theta[1]) - (oldTheta[0] + oldTheta[1])) < 0.0000001:
+	if abs(oldTheta[0] - theta[0]) < 0.000001 and abs(oldTheta[1] - theta[1]) < 0.000001:
 		return 1
 	return 0
 
